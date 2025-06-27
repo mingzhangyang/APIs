@@ -462,6 +462,11 @@
 
     <script>
         const API_URL = 'https://holiday-info.orangely.workers.dev/';
+        const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/';
+        
+        // Use CORS proxy for testing if needed
+        const USE_CORS_PROXY = true; // Set to true if CORS issues persist
+        const EFFECTIVE_API_URL = USE_CORS_PROXY ? CORS_PROXY + API_URL : API_URL;
         
         const form = document.getElementById('holidayForm');
         const loading = document.getElementById('loading');
@@ -530,12 +535,13 @@
             addDebugStep('UI状态已更新，开始发送请求', 'info');
 
             try {
-                addDebugStep(`向 ${API_URL} 发送 POST 请求`, 'info');
+                addDebugStep(`向 ${EFFECTIVE_API_URL} 发送 POST 请求`, 'info');
                 
-                const response = await fetch(API_URL, {
+                const response = await fetch(EFFECTIVE_API_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        ...(USE_CORS_PROXY && { 'X-Requested-With': 'XMLHttpRequest' })
                     },
                     body: JSON.stringify(data)
                 });
@@ -551,10 +557,11 @@
 
                 addDebugStep('开始解析 JSON 响应', 'info');
                 const responseData = await response.json();
-                addDebugStep(`响应数据长度: ${responseData.background ? responseData.background.length : 0} 字符`, 'success');
+                addDebugStep(`完整响应数据: ${JSON.stringify(responseData, null, 2)}`, 'info');
+                addDebugStep(`响应数据字段: ${Object.keys(responseData).join(', ')}`, 'info');
                 
                 // 显示结果
-                displayResult(responseData);
+                displayResult(responseData, data);
                 addDebugStep('结果显示完成', 'success');
                 
             } catch (err) {
@@ -564,6 +571,10 @@
                 // 检查网络连接
                 if (err.name === 'TypeError' && err.message.includes('fetch')) {
                     addDebugStep('可能的网络连接问题或CORS错误', 'error');
+                    if (!USE_CORS_PROXY) {
+                        addDebugStep('建议: 如果是CORS错误，可以在服务器端添加CORS头部', 'error');
+                        addDebugStep('或者临时设置 USE_CORS_PROXY = true 进行测试', 'error');
+                    }
                 }
                 
                 console.error('详细错误信息:', err);
@@ -578,15 +589,22 @@
             }
         });
 
-        function displayResult(data) {
+        function displayResult(data, requestData) {
             addDebugStep('开始显示结果', 'info');
+            addDebugStep(`响应数据结构: ${JSON.stringify(Object.keys(data))}`, 'info');
             
-            document.getElementById('resultTitle').textContent = `${data.holiday} - ${data.country}`;
-            document.getElementById('resultLanguage').textContent = `语言: ${data.language.toUpperCase()}`;
+            // 使用请求数据作为显示信息，因为API响应只包含background字段
+            const holiday = requestData?.holiday || data.holiday || '未知节日';
+            const country = requestData?.country || data.country || '未知国家';
+            const language = requestData?.language || data.language || 'unknown';
+            const background = data.background || data.content || data.result || '暂无内容';
+            
+            document.getElementById('resultTitle').textContent = `${holiday} - ${country}`;
+            document.getElementById('resultLanguage').textContent = `语言: ${language.toUpperCase()}`;
             
             // 处理Markdown格式的内容
             addDebugStep('开始解析Markdown内容', 'info');
-            const content = parseMarkdown(data.background);
+            const content = parseMarkdown(background);
             addDebugStep('Markdown解析完成', 'success');
             
             document.getElementById('resultContent').innerHTML = content;
@@ -675,7 +693,10 @@
         // 页面加载完成时的初始化
         document.addEventListener('DOMContentLoaded', function() {
             addDebugStep('页面加载完成，测试器已准备就绪', 'success');
-            addDebugStep(`目标API地址: ${API_URL}`, 'info');
+            addDebugStep(`目标API地址: ${EFFECTIVE_API_URL}`, 'info');
+            if (USE_CORS_PROXY) {
+                addDebugStep('注意: 正在使用CORS代理进行测试', 'info');
+            }
         });
         
         // 捕获全局错误
