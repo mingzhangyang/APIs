@@ -585,7 +585,9 @@
             document.getElementById('resultLanguage').textContent = `语言: ${data.language.toUpperCase()}`;
             
             // 处理Markdown格式的内容
+            addDebugStep('开始解析Markdown内容', 'info');
             const content = parseMarkdown(data.background);
+            addDebugStep('Markdown解析完成', 'success');
             
             document.getElementById('resultContent').innerHTML = content;
             result.style.display = 'block';
@@ -598,58 +600,49 @@
             
             let html = text;
             
-            // Headers (### Header 3, ## Header 2, # Header 1)
-            html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
-            html = html.replace(/^## (.*$)/gm, '<h2>$1</h2>');
-            html = html.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+            // First, escape any existing HTML to prevent conflicts
+            // html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             
-            // Bold text (**text** or __text__)
+            // Headers (must be done first, in order from most specific to least)
+            html = html.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
+            html = html.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
+            html = html.replace(/^# (.*?)$/gm, '<h1>$1</h1>');
+            
+            // Code blocks (do before inline code)
+            html = html.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+            
+            // Inline code (do before italic/bold to avoid conflicts)
+            html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+            
+            // Bold text (do before italic to avoid conflicts)
             html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
             html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
             
-            // Italic text (*text* or _text_)
-            html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
-            html = html.replace(/_(.*?)_/g, '<em>$1</em>');
+            // Italic text (be more specific to avoid conflicts with bold)
+            html = html.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
+            html = html.replace(/(?<!_)_([^_]+)_(?!_)/g, '<em>$1</em>');
             
-            // Code blocks (```code```)
-            html = html.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
-            
-            // Inline code (`code`)
-            html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-            
-            // Links [text](url)
+            // Links
             html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
             
-            // Line breaks (double newlines become paragraph breaks)
-            html = html.replace(/\n\n/g, '</p><p>');
+            // Convert line breaks to paragraphs
+            // Split on double newlines for paragraphs
+            const paragraphs = html.split(/\n\s*\n/);
             
-            // Unordered lists
-            html = html.replace(/^\s*[-*+]\s+(.+)$/gm, '<li>$1</li>');
-            html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
-            
-            // Ordered lists
-            html = html.replace(/^\s*\d+\.\s+(.+)$/gm, '<li>$1</li>');
-            
-            // Wrap remaining content in paragraphs
-            html = html.split('</p><p>').map(paragraph => {
+            html = paragraphs.map(paragraph => {
                 paragraph = paragraph.trim();
                 if (!paragraph) return '';
                 
                 // Don't wrap if it's already a block element
-                if (paragraph.match(/^<(h[1-6]|ul|ol|pre|blockquote)/)) {
+                if (paragraph.match(/^<(h[1-6]|pre|ul|ol|li)/)) {
                     return paragraph;
                 }
                 
-                // Don't wrap standalone list items
-                if (paragraph.match(/^<li>/)) {
-                    return paragraph;
-                }
+                // Handle single line breaks within paragraphs
+                paragraph = paragraph.replace(/\n/g, '<br>');
                 
                 return `<p>${paragraph}</p>`;
-            }).join('');
-            
-            // Clean up empty paragraphs
-            html = html.replace(/<p><\/p>/g, '');
+            }).filter(p => p).join('\n');
             
             return html;
         }
