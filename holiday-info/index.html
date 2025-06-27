@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>节日信息 API 测试器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            min-height: 600px;
+        }
+
+        .form-section {
+            padding: 40px;
+            background: #f8f9ff;
+            border-right: 1px solid #e0e4e7;
+        }
+
+        .result-section {
+            padding: 40px;
+            background: white;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .quick-examples {
+            margin-bottom: 25px;
+        }
+
+        .quick-examples h3 {
+            margin-bottom: 15px;
+            color: #374151;
+            font-size: 1.1rem;
+        }
+
+        .example-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .example-btn {
+            padding: 8px 12px;
+            background: #e0e7ff;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #3730a3;
+        }
+
+        .example-btn:hover {
+            background: #c7d2fe;
+            transform: translateY(-1px);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result {
+            display: none;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #374151;
+        }
+
+        .result-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .result-content {
+            line-height: 1.8;
+            color: #374151;
+            font-size: 1.05rem;
+        }
+
+        .result-content h1, .result-content h2, .result-content h3 {
+            color: #1f2937;
+            margin: 25px 0 15px 0;
+        }
+
+        .result-content h1 {
+            font-size: 1.8rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .result-content h2 {
+            font-size: 1.4rem;
+            color: #667eea;
+        }
+
+        .result-content h3 {
+            font-size: 1.2rem;
+        }
+
+        .result-content p {
+            margin-bottom: 15px;
+        }
+
+        .result-content ul, .result-content ol {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+
+        .result-content li {
+            margin-bottom: 8px;
+        }
+
+        .error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .debug-info {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            color: #0369a1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .debug-info h4 {
+            margin-bottom: 10px;
+            color: #0c4a6e;
+            font-family: inherit;
+        }
+
+        .debug-step {
+            margin-bottom: 8px;
+            padding: 5px;
+            border-left: 3px solid #38bdf8;
+            padding-left: 10px;
+        }
+
+        .debug-step.success {
+            border-left-color: #10b981;
+            background: #ecfdf5;
+        }
+
+        .debug-step.error {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .debug-step.info {
+            border-left-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .copy-btn {
+            padding: 8px 16px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: #059669;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-section {
+                border-right: none;
+                border-bottom: 1px solid #e0e4e7;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .example-buttons {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 节日信息 API 测试器</h1>
+            <p>测试你的多语言节日背景信息 API</p>
+        </div>
+        
+        <div class="content">
+            <div class="form-section">
+                <form id="holidayForm">
+                    <div class="quick-examples">
+                        <h3>🚀 快速示例</h3>
+                        <div class="example-buttons">
+                            <button type="button" class="example-btn" data-holiday="Christmas" data-country="United States" data-language="zh">圣诞节(中文)</button>
+                            <button type="button" class="example-btn" data-holiday="春节" data-country="中国" data-language="en">春节(英文)</button>
+                            <button type="button" class="example-btn" data-holiday="Halloween" data-country="United States" data-language="ja">万圣节(日文)</button>
+                            <button type="button" class="example-btn" data-holiday="Diwali" data-country="India" data-language="hi">排灯节(印地语)</button>
+                            <button type="button" class="example-btn" data-holiday="Oktoberfest" data-country="Germany" data-language="de">啤酒节(德语)</button>
+                            <button type="button" class="example-btn" data-holiday="Day of the Dead" data-country="Mexico" data-language="es">亡灵节(西语)</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="holiday">🎊 节日名称</label>
+                        <input type="text" id="holiday" name="holiday" placeholder="例如: Christmas, 春节, Halloween" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="country">🌍 国家/地区</label>
+                        <input type="text" id="country" name="country" placeholder="例如: United States, 中国, Japan" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="language">🌐 返回语言</label>
+                        <select id="language" name="language">
+                            <option value="zh">🇨🇳 简体中文</option>
+                            <option value="zh-tw">🇹🇼 繁体中文</option>
+                            <option value="en">🇺🇸 English</option>
+                            <option value="ja">🇯🇵 日本語</option>
+                            <option value="ko">🇰🇷 한국어</option>
+                            <option value="es">🇪🇸 Español</option>
+                            <option value="fr">🇫🇷 Français</option>
+                            <option value="de">🇩🇪 Deutsch</option>
+                            <option value="it">🇮🇹 Italiano</option>
+                            <option value="pt">🇵🇹 Português</option>
+                            <option value="ru">🇷🇺 Русский</option>
+                            <option value="ar">🇸🇦 العربية</option>
+                            <option value="hi">🇮🇳 हिन्दी</option>
+                            <option value="th">🇹🇭 ไทย</option>
+                            <option value="vi">🇻🇳 Tiếng Việt</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        🔍 获取节日信息
+                    </button>
+                </form>
+            </div>
+
+            <div class="result-section">
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    正在获取节日信息...
+                </div>
+
+                <div class="result" id="result">
+                    <div class="result-header">
+                        <div class="result-title" id="resultTitle">节日信息</div>
+                        <div class="result-meta">
+                            <span id="resultLanguage"></span>
+                            <button class="copy-btn" id="copyBtn">📋 复制内容</button>
+                        </div>
+                    </div>
+                    <div class="result-content" id="resultContent"></div>
+                </div>
+
+                <div class="error" id="error" style="display: none;"></div>
+                
+                <div class="debug-info" id="debugInfo" style="display: none;">
+                    <h4>🔍 调试信息</h4>
+                    <div id="debugSteps"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://holiday-info.orangely.workers.dev/';
+        
+        const form = document.getElementById('holidayForm');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+        const error = document.getElementById('error');
+        const debugInfo = document.getElementById('debugInfo');
+        const debugSteps = document.getElementById('debugSteps');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        // 调试日志函数
+        function addDebugStep(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const step = document.createElement('div');
+            step.className = `debug-step ${type}`;
+            step.textContent = `[${timestamp}] ${message}`;
+            debugSteps.appendChild(step);
+            debugInfo.style.display = 'block';
+            
+            // 自动滚动到最新信息
+            debugSteps.scrollTop = debugSteps.scrollHeight;
+            
+            // 同时输出到控制台
+            console.log(`[${timestamp}] ${message}`);
+        }
+        
+        // 清空调试信息
+        function clearDebugInfo() {
+            debugSteps.innerHTML = '';
+            debugInfo.style.display = 'none';
+        }
+        
+        // 快速示例按钮事件
+        document.querySelectorAll('.example-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('holiday').value = btn.dataset.holiday;
+                document.getElementById('country').value = btn.dataset.country;
+                document.getElementById('language').value = btn.dataset.language;
+                addDebugStep(`已选择示例: ${btn.dataset.holiday} (${btn.dataset.country}) - ${btn.dataset.language}`, 'info');
+            });
+        });
+
+        // 表单提交事件
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // 清空之前的信息
+            clearDebugInfo();
+            
+            const formData = new FormData(form);
+            const data = {
+                holiday: formData.get('holiday'),
+                country: formData.get('country'),
+                language: formData.get('language')
+            };
+
+            addDebugStep('开始处理表单提交', 'info');
+            addDebugStep(`请求数据: ${JSON.stringify(data)}`, 'info');
+
+            // UI 状态更新
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            error.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.textContent = '🔄 请求中...';
+            
+            addDebugStep('UI状态已更新，开始发送请求', 'info');
+
+            try {
+                addDebugStep(`向 ${API_URL} 发送 POST 请求`, 'info');
+                
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                addDebugStep(`收到响应 - 状态码: ${response.status} ${response.statusText}`, 
+                    response.ok ? 'success' : 'error');
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    addDebugStep(`错误响应内容: ${errorText}`, 'error');
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+
+                addDebugStep('开始解析 JSON 响应', 'info');
+                const responseData = await response.json();
+                addDebugStep(`响应数据长度: ${responseData.background ? responseData.background.length : 0} 字符`, 'success');
+                
+                // 显示结果
+                displayResult(responseData);
+                addDebugStep('结果显示完成', 'success');
+                
+            } catch (err) {
+                const errorMessage = `请求失败: ${err.message}`;
+                addDebugStep(errorMessage, 'error');
+                
+                // 检查网络连接
+                if (err.name === 'TypeError' && err.message.includes('fetch')) {
+                    addDebugStep('可能的网络连接问题或CORS错误', 'error');
+                }
+                
+                console.error('详细错误信息:', err);
+                showError(errorMessage);
+                
+            } finally {
+                // 恢复UI状态
+                loading.style.display = 'none';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🔍 获取节日信息';
+                addDebugStep('UI状态已恢复', 'info');
+            }
+        });
+
+        function displayResult(data) {
+            addDebugStep('开始显示结果', 'info');
+            
+            document.getElementById('resultTitle').textContent = `${data.holiday} - ${data.country}`;
+            document.getElementById('resultLanguage').textContent = `语言: ${data.language.toUpperCase()}`;
+            
+            // 处理Markdown格式的内容
+            const content = data.background
+                .replace(/\*\*(.*?)\*\*/g, '<h2>$1</h2>')
+                .replace(/^(\d+)\.\s+\*\*(.*?)\*\*/gm, '<h3>$1. $2</h3>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/^(?!<h)/gm, '<p>')
+                .replace(/(<p>.*?)$/gm, '$1</p>');
+            
+            document.getElementById('resultContent').innerHTML = content;
+            result.style.display = 'block';
+            
+            addDebugStep('结果内容已渲染', 'success');
+        }
+
+        function showError(message) {
+            error.textContent = message;
+            error.style.display = 'block';
+            addDebugStep('错误信息已显示', 'error');
+        }
+
+        // 复制功能
+        document.getElementById('copyBtn').addEventListener('click', async () => {
+            const content = document.getElementById('resultContent').textContent;
+            try {
+                await navigator.clipboard.writeText(content);
+                const btn = document.getElementById('copyBtn');
+                const originalText = btn.textContent;
+                btn.textContent = '✅ 已复制';
+                addDebugStep('内容已复制到剪贴板', 'success');
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            } catch (err) {
+                console.error('复制失败:', err);
+                addDebugStep(`复制失败: ${err.message}`, 'error');
+                alert('复制失败，请手动选择文本');
+            }
+        });
+        
+        // 页面加载完成时的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            addDebugStep('页面加载完成，测试器已准备就绪', 'success');
+            addDebugStep(`目标API地址: ${API_URL}`, 'info');
+        });
+        
+        // 捕获全局错误
+        window.addEventListener('error', function(e) {
+            addDebugStep(`全局错误: ${e.message}`, 'error');
+            console.error('全局错误:', e);
+        });
+        
+        // 捕获未处理的Promise错误
+        window.addEventListener('unhandledrejection', function(e) {
+            addDebugStep(`未处理的Promise错误: ${e.reason}`, 'error');
+            console.error('未处理的Promise错误:', e.reason);
+        });
+    </script>
+</body>
+</html>
