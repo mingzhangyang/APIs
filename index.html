@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Testing Pages Collection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .description {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+            color: #4b5563;
+        }
+
+        .api-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .api-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #e5e7eb;
+        }
+
+        .api-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .api-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .api-card .emoji {
+            font-size: 1.8rem;
+        }
+
+        .api-card p {
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+
+        .api-card .features {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+
+        .api-card .features li {
+            color: #4b5563;
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .api-card .features li:before {
+            content: "✓";
+            color: #10b981;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .info-section {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+
+        .info-section h2 {
+            color: #374151;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .info-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .info-item h3 {
+            color: #4f46e5;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .info-item p {
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            background: #f8fafc;
+            color: #6b7280;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .footer a {
+            color: #4f46e5;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .api-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 API Testing Pages</h1>
+            <p>Interactive web interfaces for testing various APIs with modern, user-friendly designs</p>
+        </div>
+
+        <div class="content">
+            <div class="description">
+                <p>Welcome to our collection of API testing tools! Each page provides a dedicated interface for testing specific APIs with real-time responses, debug information, and beautiful user interfaces.</p>
+            </div>
+
+            <div class="api-grid">
+                <div class="api-card">
+                    <h3><span class="emoji">🎉</span>Holiday Information API</h3>
+                    <p>Interactive testing interface for holiday and date-related APIs with multilingual support.</p>
+                    <ul class="features">
+                        <li>Real-time API response display</li>
+                        <li>Chinese/international holiday data</li>
+                        <li>Debug information and logging</li>
+                        <li>Mobile-responsive design</li>
+                    </ul>
+                    <div class="btn-group">
+                        <a href="holiday-info/index.html" class="btn btn-primary">Launch Tester</a>
+                        <a href="holiday-info/README.md" class="btn btn-secondary">Documentation</a>
+                    </div>
+                </div>
+
+                <!-- Placeholder for future API testers -->
+                <div class="api-card" style="opacity: 0.6; border: 2px dashed #d1d5db;">
+                    <h3><span class="emoji">🔮</span>Future API Tester</h3>
+                    <p>More API testing pages will be added here. Each will follow the same pattern of clean design and comprehensive testing capabilities.</p>
+                    <ul class="features">
+                        <li>Modern UI design</li>
+                        <li>Real-time testing</li>
+                        <li>Comprehensive documentation</li>
+                        <li>No dependencies required</li>
+                    </ul>
+                    <div class="btn-group">
+                        <span class="btn btn-secondary" style="opacity: 0.5;">Coming Soon</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h2>🎨 Features & Benefits</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <h3>🎯 No Setup Required</h3>
+                        <p>All testing pages work directly in your browser without any server setup or dependencies.</p>
+                    </div>
+                    <div class="info-item">
+                        <h3>📱 Responsive Design</h3>
+                        <p>Modern, mobile-friendly interfaces that work perfectly on desktop and mobile devices.</p>
+                    </div>
+                    <div class="info-item">
+                        <h3>⚡ Real-time Testing</h3>
+                        <p>Instant API requests with live response display and comprehensive debug information.</p>
+                    </div>
+                    <div class="info-item">
+                        <h3>🔧 Developer Friendly</h3>
+                        <p>Clean code structure, detailed documentation, and easy customization for your needs.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>
+                🔗 View on <a href="https://github.com/mingzhangyang/APIs" target="_blank">GitHub</a> 
+                | 📚 <a href="README.md">Full Documentation</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
